@@ -1,0 +1,12 @@
+.DS_Store
+*.log
+*.pem
+
+# environment / secrets (never commit)
+.env
+.env.local
+.env.*.local
+
+# AI tooling config (local only)
+AGENTS.md
+CLAUDE.md
