@@ -1,0 +1,1098 @@
+{
+  "info": {
+    "name": "RentNest API",
+    "description": "Complete API documentation for RentNest - Rental Property Marketplace\n\nBase URL: {{base_url}}/api\n\n## Authentication\n- Register/Login to get a JWT token\n- Token is auto-set to `token` variable\n- Protected routes require `Authorization: Bearer {{token}}` header\n\n## Variables\n- `base_url`: API base URL (default: https://rentnest-api.vercel.app)\n- `token`: JWT token (auto-set after login/register)\n- `propertyId`: Store after creating/looking up a property\n- `rentalRequestId`: Store after creating a rental request\n- `paymentId`: Store after creating payment intent\n- `transactionId`: Store after creating payment intent\n- `reviewId`: Store after creating a review\n- `categoryId`: Store after creating/looking up a category\n- `userId`: Store for admin operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "rentnest"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://rentnest-api.vercel.app",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "propertyId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rentalRequestId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transactionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Success', () => pm.response.to.have.jsonBody('success', true));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check if the API is running"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"RentNest API is running\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Token received', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.data.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"tenant\",\n  \"phone\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user. Role can be 'tenant' or 'landlord'. Token is auto-set to {{token}}."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"uuid\",\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"tenant\",\n      \"phone\": \"+1234567890\",\n      \"isBanned\": false,\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\"\n  }\n}"
+            },
+            {
+              "name": "Error - Duplicate Email",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"A record with this value already exists\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Token received', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('token', json.data.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with email and password. Token is auto-set to {{token}}."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"uuid\",\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"tenant\",\n      \"phone\": \"+1234567890\",\n      \"isBanned\": false\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\"\n  }\n}"
+            },
+            {
+              "name": "Error - Invalid Credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid email or password\"\n}"
+            },
+            {
+              "name": "Error - Banned",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Your account has been banned\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Get Current User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get the currently authenticated user's profile. Requires JWT token."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"User fetched successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"tenant\",\n    \"phone\": \"+1234567890\",\n    \"isBanned\": false,\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "Error - Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Authentication required\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Authentication endpoints. Register a new account or login to receive a JWT token. The token is automatically saved to the `token` variable for use in other requests."
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "GET All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories"]
+            },
+            "description": "Get all property categories. Public endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Categories fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"Apartment\",\n      \"description\": \"Apartment listings\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Public category listings."
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "GET List Properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/properties?page=1&limit=10&city=Dhaka&minPrice=5000&maxPrice=50000&bedrooms=2&location=Gulshan",
+              "host": ["{{base_url}}"],
+              "path": ["api", "properties"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (default: 1)" },
+                { "key": "limit", "value": "10", "description": "Items per page, max 100 (default: 10)" },
+                { "key": "city", "value": "Dhaka", "description": "Filter by city" },
+                { "key": "minPrice", "value": "5000", "description": "Minimum price filter" },
+                { "key": "maxPrice", "value": "50000", "description": "Maximum price filter" },
+                { "key": "bedrooms", "value": "2", "description": "Filter by number of bedrooms" },
+                { "key": "location", "value": "Gulshan", "description": "Search across city/address/state" },
+                { "key": "category", "value": "", "description": "Filter by category name" }
+              ]
+            },
+            "description": "List available properties with filtering and pagination. All query params are optional. Public endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Properties fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"title\": \"Modern Apartment in Gulshan\",\n      \"description\": \"A beautiful apartment...\",\n      \"price\": 15000,\n      \"address\": \"123 Gulshan Avenue\",\n      \"city\": \"Dhaka\",\n      \"state\": \"Dhaka Division\",\n      \"zipCode\": \"1212\",\n      \"bedrooms\": 2,\n      \"bathrooms\": 1,\n      \"area\": 1200,\n      \"amenities\": [\"WiFi\", \"Parking\"],\n      \"images\": [\"https://...\"],\n      \"isAvailable\": true,\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"updatedAt\": \"2024-01-01T00:00:00.000Z\",\n      \"landlordId\": \"uuid\",\n      \"categoryId\": \"uuid\",\n      \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\", \"phone\": \"+1234567890\" },\n      \"category\": { \"id\": \"uuid\", \"name\": \"Apartment\" }\n    }\n  ],\n  \"meta\": {\n    \"page\": 1,\n    \"limit\": 10,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Property By ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Save property ID', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('propertyId', json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/properties/{{propertyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "properties", "{{propertyId}}"]
+            },
+            "description": "Get property details by ID. Includes landlord, category, and all reviews. Public endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Property fetched successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"title\": \"Modern Apartment in Gulshan\",\n    \"price\": 15000,\n    \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\", \"phone\": \"+1234567890\" },\n    \"category\": { \"id\": \"uuid\", \"name\": \"Apartment\" },\n    \"reviews\": [\n      {\n        \"id\": \"uuid\",\n        \"rating\": 5,\n        \"comment\": \"Great place!\",\n        \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n        \"tenantId\": \"uuid\",\n        \"propertyId\": \"uuid\",\n        \"rentalRequestId\": \"uuid\",\n        \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant\" }\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Error - Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Property not found\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Public property listings. View available properties with search filters."
+    },
+    {
+      "name": "Landlord",
+      "item": [
+        {
+          "name": "POST Create Property",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Save property ID', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('propertyId', json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Modern Apartment in Gulshan\",\n  \"description\": \"A beautiful 2-bedroom apartment with modern amenities in the heart of Gulshan.\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"price\": 15000,\n  \"address\": \"123 Gulshan Avenue\",\n  \"city\": \"Dhaka\",\n  \"state\": \"Dhaka Division\",\n  \"zipCode\": \"1212\",\n  \"bedrooms\": 2,\n  \"bathrooms\": 1,\n  \"area\": 1200,\n  \"amenities\": [\"WiFi\", \"Parking\", \"AC\"],\n  \"images\": [\"https://example.com/image.jpg\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/landlord/properties",
+              "host": ["{{base_url}}"],
+              "path": ["api", "landlord", "properties"]
+            },
+            "description": "Create a new property listing. Requires LANDLORD role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Property created successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"title\": \"Modern Apartment in Gulshan\",\n    \"price\": 15000,\n    \"landlordId\": \"uuid\",\n    \"category\": { \"id\": \"uuid\", \"name\": \"Apartment\" }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "PUT Update Property",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Apartment Title\",\n  \"price\": 18000,\n  \"isAvailable\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/landlord/properties/{{propertyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "landlord", "properties", "{{propertyId}}"]
+            },
+            "description": "Update a property listing. Can only update own properties. Requires LANDLORD role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Property updated successfully\",\n  \"data\": { \"...full property data\" }\n}"
+            },
+            {
+              "name": "Error - Not Owner",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You can only update your own property\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE Delete Property",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/landlord/properties/{{propertyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "landlord", "properties", "{{propertyId}}"]
+            },
+            "description": "Delete a property listing. Can only delete own properties. Requires LANDLORD role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Property deleted successfully\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET My Requests (Landlord)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/landlord/requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "landlord", "requests"]
+            },
+            "description": "View all rental requests for the landlord's properties. Requires LANDLORD role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental requests fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"status\": \"pending\",\n      \"message\": \"Interested in renting\",\n      \"startDate\": \"2024-02-01\",\n      \"endDate\": \"2024-12-31\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant\", \"email\": \"tenant@test.com\", \"phone\": \"+1234567890\" },\n      \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\", \"price\": 15000, \"address\": \"123 Gulshan\", \"city\": \"Dhaka\" }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "PATCH Update Request Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/landlord/requests/{{rentalRequestId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "landlord", "requests", "{{rentalRequestId}}"]
+            },
+            "description": "Approve or reject a rental request. Status must be 'approved' or 'rejected'. Requires LANDLORD role."
+          },
+          "response": [
+            {
+              "name": "Success - Approved",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental request approved successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"status\": \"approved\",\n    \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant\", \"email\": \"tenant@test.com\" },\n    \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\" }\n  }\n}"
+            },
+            {
+              "name": "Error - Already Processed",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Request has already been processed\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Landlord-only endpoints for managing properties and rental requests. Requires LANDLORD role."
+    },
+    {
+      "name": "Rentals",
+      "item": [
+        {
+          "name": "POST Create Rental Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Save rental request ID', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('rentalRequestId', json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"{{propertyId}}\",\n  \"startDate\": \"2024-02-01\",\n  \"endDate\": \"2024-12-31\",\n  \"message\": \"I am interested in renting this property.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rentals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rentals"]
+            },
+            "description": "Submit a rental request for a property. Requires TENANT role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental request submitted successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"status\": \"pending\",\n    \"startDate\": \"2024-02-01\",\n    \"endDate\": \"2024-12-31\",\n    \"message\": \"I am interested in renting this property.\",\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n    \"tenantId\": \"uuid\",\n    \"propertyId\": \"uuid\",\n    \"landlordId\": \"uuid\",\n    \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\", \"price\": 15000 }\n  }\n}"
+            },
+            {
+              "name": "Error - Not Available",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Property is not available for rent\"\n}"
+            },
+            {
+              "name": "Error - Self Rental",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You cannot rent your own property\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET My Rental Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rentals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rentals"]
+            },
+            "description": "Get all rental requests for the authenticated user (tenant). Includes property and landlord details."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental requests fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"status\": \"pending\",\n      \"startDate\": \"2024-02-01\",\n      \"endDate\": \"2024-12-31\",\n      \"message\": \"I am interested\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\", \"price\": 15000, \"address\": \"123 Gulshan\", \"city\": \"Dhaka\", \"images\": [] },\n      \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\", \"phone\": \"+1234567890\" }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Rental Request By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rentals/{{rentalRequestId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rentals", "{{rentalRequestId}}"]
+            },
+            "description": "Get a single rental request by ID. Accessible by both tenant (owner) and landlord (property owner). Includes payments."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental request fetched successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"status\": \"approved\",\n    \"startDate\": \"2024-02-01\",\n    \"endDate\": \"2024-12-31\",\n    \"property\": { \"...\": \"...\", \"category\": { \"id\": \"uuid\", \"name\": \"Apartment\" } },\n    \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\", \"phone\": \"+1234567890\" },\n    \"payments\": [\n      { \"id\": \"uuid\", \"amount\": 15000, \"status\": \"pending\", \"provider\": \"stripe\", \"transactionId\": \"pi_...\", \"createdAt\": \"...\" }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Error - Forbidden",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You can only view your own rental requests\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Tenant rental request management. Submit and track rental requests."
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "POST Create Payment Intent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Save payment details', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('paymentId', json.data.paymentId);",
+                  "  pm.collectionVariables.set('transactionId', json.data.transactionId);",
+                  "  pm.collectionVariables.set('clientSecret', json.data.clientSecret);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentalRequestId\": \"{{rentalRequestId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/create-payment-intent",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "create-payment-intent"]
+            },
+            "description": "Create a Stripe PaymentIntent for an approved rental request. Returns client_secret for frontend confirmation. Requires TENANT role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Payment intent created\",\n  \"data\": {\n    \"clientSecret\": \"pi_3R8K2UD65e8hEgge0o1vTtIO_secret_5NHmLTGD5iHm4fKHPFjMkgdHY\",\n    \"paymentId\": \"uuid\",\n    \"transactionId\": \"pi_3R8K2UD65e8hEgge0o1vTtIO\",\n    \"amount\": 15000\n  }\n}"
+            },
+            {
+              "name": "Error - Not Approved",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Payment is only allowed for approved requests\"\n}"
+            },
+            {
+              "name": "Error - Already Paid",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Payment already completed for this request\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"transactionId\": \"{{transactionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "confirm"]
+            },
+            "description": "Confirm a payment after frontend Stripe confirmation. Marks payment as COMPLETED and rental request as ACTIVE. Requires TENANT role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Payment confirmed successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"status\": \"completed\",\n    \"transactionId\": \"pi_...\",\n    \"paidAt\": \"2024-01-01T00:00:00.000Z\",\n    \"amount\": 15000,\n    \"method\": \"card\",\n    \"provider\": \"stripe\"\n  }\n}"
+            },
+            {
+              "name": "Error - Already Processed",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Payment has already been processed\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Payment History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            },
+            "description": "Get all payments for the authenticated tenant. Includes rental request and property details."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Payment history fetched\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"amount\": 15000,\n      \"method\": \"card\",\n      \"provider\": \"stripe\",\n      \"status\": \"completed\",\n      \"transactionId\": \"pi_...\",\n      \"paidAt\": \"2024-01-01T00:00:00.000Z\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"rentalRequest\": {\n        \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\", \"price\": 15000 }\n      }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET Payment By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments/{{paymentId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments", "{{paymentId}}"]
+            },
+            "description": "Get payment details by ID. Includes rental request, property, and landlord info. Accessible by the payment owner (tenant)."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Payment fetched\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"amount\": 15000,\n    \"method\": \"card\",\n    \"provider\": \"stripe\",\n    \"status\": \"completed\",\n    \"transactionId\": \"pi_...\",\n    \"paidAt\": \"2024-01-01T00:00:00.000Z\",\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n    \"rentalRequest\": {\n      \"id\": \"uuid\",\n      \"status\": \"active\",\n      \"startDate\": \"2024-02-01\",\n      \"endDate\": \"2024-12-31\",\n      \"property\": { \"...full property fields...\" },\n      \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\" }\n    }\n  }\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Payment processing with Stripe. Create payment intents, confirm payments, and view payment history."
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "GET All Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews?propertyId={{propertyId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews"],
+              "query": [
+                { "key": "propertyId", "value": "{{propertyId}}", "description": "Filter by property ID (optional)" }
+              ]
+            },
+            "description": "Get all reviews. Optionally filter by propertyId. Public endpoint."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Reviews fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"rating\": 5,\n      \"comment\": \"Great place!\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"tenantId\": \"uuid\",\n      \"propertyId\": \"uuid\",\n      \"rentalRequestId\": \"uuid\",\n      \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant Name\" }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"{{propertyId}}\",\n  \"rentalRequestId\": \"{{rentalRequestId}}\",\n  \"rating\": 5,\n  \"comment\": \"Amazing property! Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews"]
+            },
+            "description": "Create a review for a property. Requires TENANT role and an active/completed rental request."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Review created successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"rating\": 5,\n    \"comment\": \"Amazing property! Highly recommended.\",\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n    \"tenantId\": \"uuid\",\n    \"propertyId\": \"uuid\",\n    \"rentalRequestId\": \"uuid\",\n    \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant Name\" }\n  }\n}"
+            },
+            {
+              "name": "Error - Duplicate",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You have already reviewed this property\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/my",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "my"]
+            },
+            "description": "Get all reviews written by the authenticated tenant. Requires TENANT role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Your reviews fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"rating\": 5,\n      \"comment\": \"Amazing property!\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"propertyId\": \"uuid\",\n      \"rentalRequestId\": \"uuid\",\n      \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\" }\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Property reviews. Tenants can review properties they've rented. Public can view reviews."
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "page", "value": "1", "description": "Page number (default: 1)" },
+                { "key": "limit", "value": "20", "description": "Items per page (default: 20)" }
+              ]
+            },
+            "description": "Get paginated list of all users with counts. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Users fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"tenant\",\n      \"phone\": \"+1234567890\",\n      \"isBanned\": false,\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"_count\": { \"properties\": 0, \"rentalRequests\": 3, \"reviews\": 1 }\n    }\n  ],\n  \"meta\": { \"page\": 1, \"limit\": 20, \"total\": 10 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "PATCH Update User Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isBanned\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{userId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Ban or unban a user. Cannot ban other admins. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success - Banned",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"User banned successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"role\": \"tenant\",\n    \"isBanned\": true\n  }\n}"
+            },
+            {
+              "name": "Error - Cannot Ban Admin",
+              "status": "Forbidden",
+              "code": 403,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"You cannot ban another admin\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET All Properties (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/properties?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "properties"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Get ALL properties (including unavailable). Includes landlord and category. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Properties fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"title\": \"Modern Apartment\",\n      \"price\": 15000,\n      \"isAvailable\": false,\n      \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\" },\n      \"category\": { \"id\": \"uuid\", \"name\": \"Apartment\" },\n      \"_count\": { \"rentalRequests\": 2, \"reviews\": 1 }\n    }\n  ],\n  \"meta\": { \"page\": 1, \"limit\": 20, \"total\": 5 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET All Rentals (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/rentals?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "rentals"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Get ALL rental requests with tenant, landlord, and property details. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Rental requests fetched successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"status\": \"pending\",\n      \"startDate\": \"2024-02-01\",\n      \"endDate\": \"2024-12-31\",\n      \"createdAt\": \"2024-01-01T00:00:00.000Z\",\n      \"tenant\": { \"id\": \"uuid\", \"name\": \"Tenant\", \"email\": \"tenant@test.com\" },\n      \"landlord\": { \"id\": \"uuid\", \"name\": \"Landlord\", \"email\": \"landlord@test.com\" },\n      \"property\": { \"id\": \"uuid\", \"title\": \"Modern Apartment\", \"price\": 15000 }\n    }\n  ],\n  \"meta\": { \"page\": 1, \"limit\": 20, \"total\": 10 }\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST Create Category (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Save category ID', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('categoryId', json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apartment\",\n  \"description\": \"Apartment listings for rent\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"]
+            },
+            "description": "Create a new property category. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Category created successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"name\": \"Apartment\",\n    \"description\": \"Apartment listings for rent\",\n    \"createdAt\": \"2024-01-01T00:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DELETE Delete Category (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{categoryId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{categoryId}}"]
+            },
+            "description": "Delete a property category. Requires ADMIN role."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Category deleted successfully\"\n}"
+            },
+            {
+              "name": "Error - Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Category not found\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Admin-only endpoints for managing users, properties, rentals, and categories. Requires ADMIN role."
+    }
+  ]
+}
