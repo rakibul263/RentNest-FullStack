@@ -1,0 +1,2118 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RentNest API",
+    "version": "1.0.0",
+    "description": "Complete API documentation for RentNest - Rental Property Marketplace\n\nBase URL: https://rentnest-api.vercel.app/api\n\n## Authentication\n- Register/Login to get a JWT token\n- Token is auto-set to `token` variable\n- Protected routes require `Authorization: Bearer {{token}}` header\n\n## Variables\n- `base_url`: API base URL (default: https://rentnest-api.vercel.app)\n- `token`: JWT token (auto-set after login/register)\n- `propertyId`: Store after creating/looking up a property\n- `rentalRequestId`: Store after creating a rental request\n- `paymentId`: Store after creating payment intent\n- `transactionId`: Store after creating payment intent\n- `reviewId`: Store after creating a review\n- `categoryId`: Store after creating/looking up a category\n- `userId`: Store for admin operations"
+  },
+  "servers": [
+    {
+      "url": "https://rentnest-api.vercel.app/api",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "GET Health Check",
+        "description": "Check if the API is running",
+        "tags": [
+          "GET Health Check"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "RentNest API is running"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "POST Register",
+        "description": "Register a new user. Role can be 'tenant' or 'landlord'. Token is auto-set to {{token}}.",
+        "tags": [
+          "POST Register"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "tenant"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "+1234567890"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User registered successfully",
+                  "data": {
+                    "user": {
+                      "id": "uuid",
+                      "name": "John Doe",
+                      "email": "john@example.com",
+                      "role": "tenant",
+                      "phone": "+1234567890",
+                      "isBanned": false,
+                      "createdAt": "2024-01-01T00:00:00.000Z"
+                    },
+                    "token": "eyJhbGciOiJIUzI1NiIs..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "POST Login",
+        "description": "Login with email and password. Token is auto-set to {{token}}.",
+        "tags": [
+          "POST Login"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Login successful",
+                  "data": {
+                    "user": {
+                      "id": "uuid",
+                      "name": "John Doe",
+                      "email": "john@example.com",
+                      "role": "tenant",
+                      "phone": "+1234567890",
+                      "isBanned": false
+                    },
+                    "token": "eyJhbGciOiJIUzI1NiIs..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "GET Get Current User",
+        "description": "Get the currently authenticated user's profile. Requires JWT token.",
+        "tags": [
+          "GET Get Current User"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User fetched successfully",
+                  "data": {
+                    "id": "uuid",
+                    "name": "John Doe",
+                    "email": "john@example.com",
+                    "role": "tenant",
+                    "phone": "+1234567890",
+                    "isBanned": false,
+                    "createdAt": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "GET All Categories",
+        "description": "Get all property categories. Public endpoint.",
+        "tags": [
+          "GET All Categories"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Categories fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "name": "Apartment",
+                      "description": "Apartment listings",
+                      "createdAt": "2024-01-01T00:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/properties": {
+      "get": {
+        "summary": "GET List Properties",
+        "description": "List available properties with filtering and pagination. All query params are optional. Public endpoint.",
+        "tags": [
+          "GET List Properties"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page, max 100 (default: 10)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "description": "Filter by city",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "description": "Minimum price filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "description": "Maximum price filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bedrooms",
+            "in": "query",
+            "description": "Filter by number of bedrooms",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "Search across city/address/state",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Properties fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "title": "Modern Apartment in Gulshan",
+                      "description": "A beautiful apartment...",
+                      "price": 15000,
+                      "address": "123 Gulshan Avenue",
+                      "city": "Dhaka",
+                      "state": "Dhaka Division",
+                      "zipCode": "1212",
+                      "bedrooms": 2,
+                      "bathrooms": 1,
+                      "area": 1200,
+                      "amenities": [
+                        "WiFi",
+                        "Parking"
+                      ],
+                      "images": [
+                        "https://..."
+                      ],
+                      "isAvailable": true,
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "updatedAt": "2024-01-01T00:00:00.000Z",
+                      "landlordId": "uuid",
+                      "categoryId": "uuid",
+                      "landlord": {
+                        "id": "uuid",
+                        "name": "Landlord",
+                        "email": "landlord@test.com",
+                        "phone": "+1234567890"
+                      },
+                      "category": {
+                        "id": "uuid",
+                        "name": "Apartment"
+                      }
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 10,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/properties/{{propertyId}}": {
+      "get": {
+        "summary": "GET Property By ID",
+        "description": "Get property details by ID. Includes landlord, category, and all reviews. Public endpoint.",
+        "tags": [
+          "GET Property By ID"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Property fetched successfully",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Modern Apartment in Gulshan",
+                    "price": 15000,
+                    "landlord": {
+                      "id": "uuid",
+                      "name": "Landlord",
+                      "email": "landlord@test.com",
+                      "phone": "+1234567890"
+                    },
+                    "category": {
+                      "id": "uuid",
+                      "name": "Apartment"
+                    },
+                    "reviews": [
+                      {
+                        "id": "uuid",
+                        "rating": 5,
+                        "comment": "Great place!",
+                        "createdAt": "2024-01-01T00:00:00.000Z",
+                        "tenantId": "uuid",
+                        "propertyId": "uuid",
+                        "rentalRequestId": "uuid",
+                        "tenant": {
+                          "id": "uuid",
+                          "name": "Tenant"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/landlord/properties": {
+      "post": {
+        "summary": "POST Create Property",
+        "description": "Create a new property listing. Requires LANDLORD role.",
+        "tags": [
+          "POST Create Property"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Modern Apartment in Gulshan"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "A beautiful 2-bedroom apartment with modern amenities in the heart of Gulshan."
+                  },
+                  "categoryId": {
+                    "type": "string",
+                    "example": "<value>"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 15000
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "123 Gulshan Avenue"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Dhaka"
+                  },
+                  "state": {
+                    "type": "string",
+                    "example": "Dhaka Division"
+                  },
+                  "zipCode": {
+                    "type": "string",
+                    "example": "1212"
+                  },
+                  "bedrooms": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "bathrooms": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "area": {
+                    "type": "number",
+                    "example": 1200
+                  },
+                  "amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "WiFi",
+                      "Parking",
+                      "AC"
+                    ]
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "https://example.com/image.jpg"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Property created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "title": "Modern Apartment in Gulshan",
+                    "price": 15000,
+                    "landlordId": "uuid",
+                    "category": {
+                      "id": "uuid",
+                      "name": "Apartment"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/landlord/properties/{{propertyId}}": {
+      "put": {
+        "summary": "PUT Update Property",
+        "description": "Update a property listing. Can only update own properties. Requires LANDLORD role.",
+        "tags": [
+          "PUT Update Property"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Updated Apartment Title"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 18000
+                  },
+                  "isAvailable": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "DELETE Delete Property",
+        "description": "Delete a property listing. Can only delete own properties. Requires LANDLORD role.",
+        "tags": [
+          "DELETE Delete Property"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Property deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/landlord/requests": {
+      "get": {
+        "summary": "GET My Requests (Landlord)",
+        "description": "View all rental requests for the landlord's properties. Requires LANDLORD role.",
+        "tags": [
+          "GET My Requests (Landlord)"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental requests fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "status": "pending",
+                      "message": "Interested in renting",
+                      "startDate": "2024-02-01",
+                      "endDate": "2024-12-31",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "tenant": {
+                        "id": "uuid",
+                        "name": "Tenant",
+                        "email": "tenant@test.com",
+                        "phone": "+1234567890"
+                      },
+                      "property": {
+                        "id": "uuid",
+                        "title": "Modern Apartment",
+                        "price": 15000,
+                        "address": "123 Gulshan",
+                        "city": "Dhaka"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/landlord/requests/{{rentalRequestId}}": {
+      "patch": {
+        "summary": "PATCH Update Request Status",
+        "description": "Approve or reject a rental request. Status must be 'approved' or 'rejected'. Requires LANDLORD role.",
+        "tags": [
+          "PATCH Update Request Status"
+        ],
+        "parameters": [
+          {
+            "name": "rentalRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "example": "approved"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Approved",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental request approved successfully",
+                  "data": {
+                    "id": "uuid",
+                    "status": "approved",
+                    "tenant": {
+                      "id": "uuid",
+                      "name": "Tenant",
+                      "email": "tenant@test.com"
+                    },
+                    "property": {
+                      "id": "uuid",
+                      "title": "Modern Apartment"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/rentals": {
+      "post": {
+        "summary": "POST Create Rental Request",
+        "description": "Submit a rental request for a property. Requires TENANT role.",
+        "tags": [
+          "POST Create Rental Request"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "propertyId": {
+                    "type": "string",
+                    "example": "<value>"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "example": "2024-02-01"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "example": "2024-12-31"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "I am interested in renting this property."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental request submitted successfully",
+                  "data": {
+                    "id": "uuid",
+                    "status": "pending",
+                    "startDate": "2024-02-01",
+                    "endDate": "2024-12-31",
+                    "message": "I am interested in renting this property.",
+                    "createdAt": "2024-01-01T00:00:00.000Z",
+                    "tenantId": "uuid",
+                    "propertyId": "uuid",
+                    "landlordId": "uuid",
+                    "property": {
+                      "id": "uuid",
+                      "title": "Modern Apartment",
+                      "price": 15000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "get": {
+        "summary": "GET My Rental Requests",
+        "description": "Get all rental requests for the authenticated user (tenant). Includes property and landlord details.",
+        "tags": [
+          "GET My Rental Requests"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental requests fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "status": "pending",
+                      "startDate": "2024-02-01",
+                      "endDate": "2024-12-31",
+                      "message": "I am interested",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "property": {
+                        "id": "uuid",
+                        "title": "Modern Apartment",
+                        "price": 15000,
+                        "address": "123 Gulshan",
+                        "city": "Dhaka",
+                        "images": []
+                      },
+                      "landlord": {
+                        "id": "uuid",
+                        "name": "Landlord",
+                        "email": "landlord@test.com",
+                        "phone": "+1234567890"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/rentals/{{rentalRequestId}}": {
+      "get": {
+        "summary": "GET Rental Request By ID",
+        "description": "Get a single rental request by ID. Accessible by both tenant (owner) and landlord (property owner). Includes payments.",
+        "tags": [
+          "GET Rental Request By ID"
+        ],
+        "parameters": [
+          {
+            "name": "rentalRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental request fetched successfully",
+                  "data": {
+                    "id": "uuid",
+                    "status": "approved",
+                    "startDate": "2024-02-01",
+                    "endDate": "2024-12-31",
+                    "property": {
+                      "...": "...",
+                      "category": {
+                        "id": "uuid",
+                        "name": "Apartment"
+                      }
+                    },
+                    "landlord": {
+                      "id": "uuid",
+                      "name": "Landlord",
+                      "email": "landlord@test.com",
+                      "phone": "+1234567890"
+                    },
+                    "payments": [
+                      {
+                        "id": "uuid",
+                        "amount": 15000,
+                        "status": "pending",
+                        "provider": "stripe",
+                        "transactionId": "pi_...",
+                        "createdAt": "..."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/payments/create-payment-intent": {
+      "post": {
+        "summary": "POST Create Payment Intent",
+        "description": "Create a Stripe PaymentIntent for an approved rental request. Returns client_secret for frontend confirmation. Requires TENANT role.",
+        "tags": [
+          "POST Create Payment Intent"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rentalRequestId": {
+                    "type": "string",
+                    "example": "<value>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Payment intent created",
+                  "data": {
+                    "clientSecret": "pi_3R8K2UD65e8hEgge0o1vTtIO_secret_5NHmLTGD5iHm4fKHPFjMkgdHY",
+                    "paymentId": "uuid",
+                    "transactionId": "pi_3R8K2UD65e8hEgge0o1vTtIO",
+                    "amount": 15000
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/payments/confirm": {
+      "post": {
+        "summary": "POST Confirm Payment",
+        "description": "Confirm a payment after frontend Stripe confirmation. Marks payment as COMPLETED and rental request as ACTIVE. Requires TENANT role.",
+        "tags": [
+          "POST Confirm Payment"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "paymentId": {
+                    "type": "string",
+                    "example": "<value>"
+                  },
+                  "transactionId": {
+                    "type": "string",
+                    "example": "<value>"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Payment confirmed successfully",
+                  "data": {
+                    "id": "uuid",
+                    "status": "completed",
+                    "transactionId": "pi_...",
+                    "paidAt": "2024-01-01T00:00:00.000Z",
+                    "amount": 15000,
+                    "method": "card",
+                    "provider": "stripe"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/payments": {
+      "get": {
+        "summary": "GET Payment History",
+        "description": "Get all payments for the authenticated tenant. Includes rental request and property details.",
+        "tags": [
+          "GET Payment History"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Payment history fetched",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "amount": 15000,
+                      "method": "card",
+                      "provider": "stripe",
+                      "status": "completed",
+                      "transactionId": "pi_...",
+                      "paidAt": "2024-01-01T00:00:00.000Z",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "rentalRequest": {
+                        "property": {
+                          "id": "uuid",
+                          "title": "Modern Apartment",
+                          "price": 15000
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/payments/{{paymentId}}": {
+      "get": {
+        "summary": "GET Payment By ID",
+        "description": "Get payment details by ID. Includes rental request, property, and landlord info. Accessible by the payment owner (tenant).",
+        "tags": [
+          "GET Payment By ID"
+        ],
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "get": {
+        "summary": "GET All Reviews",
+        "description": "Get all reviews. Optionally filter by propertyId. Public endpoint.",
+        "tags": [
+          "GET All Reviews"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "in": "query",
+            "description": "Filter by property ID (optional)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Reviews fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "rating": 5,
+                      "comment": "Great place!",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "tenantId": "uuid",
+                      "propertyId": "uuid",
+                      "rentalRequestId": "uuid",
+                      "tenant": {
+                        "id": "uuid",
+                        "name": "Tenant Name"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST Create Review",
+        "description": "Create a review for a property. Requires TENANT role and an active/completed rental request.",
+        "tags": [
+          "POST Create Review"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "propertyId": {
+                    "type": "string",
+                    "example": "<value>"
+                  },
+                  "rentalRequestId": {
+                    "type": "string",
+                    "example": "<value>"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "example": 5
+                  },
+                  "comment": {
+                    "type": "string",
+                    "example": "Amazing property! Highly recommended."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Review created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "rating": 5,
+                    "comment": "Amazing property! Highly recommended.",
+                    "createdAt": "2024-01-01T00:00:00.000Z",
+                    "tenantId": "uuid",
+                    "propertyId": "uuid",
+                    "rentalRequestId": "uuid",
+                    "tenant": {
+                      "id": "uuid",
+                      "name": "Tenant Name"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/reviews/my": {
+      "get": {
+        "summary": "GET My Reviews",
+        "description": "Get all reviews written by the authenticated tenant. Requires TENANT role.",
+        "tags": [
+          "GET My Reviews"
+        ],
+        "parameters": [],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Your reviews fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "rating": 5,
+                      "comment": "Amazing property!",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "propertyId": "uuid",
+                      "rentalRequestId": "uuid",
+                      "property": {
+                        "id": "uuid",
+                        "title": "Modern Apartment"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "summary": "GET All Users (Admin)",
+        "description": "Get paginated list of all users with counts. Requires ADMIN role.",
+        "tags": [
+          "GET All Users (Admin)"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (default: 20)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Users fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "name": "John Doe",
+                      "email": "john@example.com",
+                      "role": "tenant",
+                      "phone": "+1234567890",
+                      "isBanned": false,
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "_count": {
+                        "properties": 0,
+                        "rentalRequests": 3,
+                        "reviews": 1
+                      }
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/users/{{userId}}": {
+      "patch": {
+        "summary": "PATCH Update User Status (Admin)",
+        "description": "Ban or unban a user. Cannot ban other admins. Requires ADMIN role.",
+        "tags": [
+          "PATCH Update User Status (Admin)"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isBanned": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success - Banned",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User banned successfully",
+                  "data": {
+                    "id": "uuid",
+                    "name": "John Doe",
+                    "email": "john@example.com",
+                    "role": "tenant",
+                    "isBanned": true
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/properties": {
+      "get": {
+        "summary": "GET All Properties (Admin)",
+        "description": "Get ALL properties (including unavailable). Includes landlord and category. Requires ADMIN role.",
+        "tags": [
+          "GET All Properties (Admin)"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Properties fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "title": "Modern Apartment",
+                      "price": 15000,
+                      "isAvailable": false,
+                      "landlord": {
+                        "id": "uuid",
+                        "name": "Landlord",
+                        "email": "landlord@test.com"
+                      },
+                      "category": {
+                        "id": "uuid",
+                        "name": "Apartment"
+                      },
+                      "_count": {
+                        "rentalRequests": 2,
+                        "reviews": 1
+                      }
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 5
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/rentals": {
+      "get": {
+        "summary": "GET All Rentals (Admin)",
+        "description": "Get ALL rental requests with tenant, landlord, and property details. Requires ADMIN role.",
+        "tags": [
+          "GET All Rentals (Admin)"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Rental requests fetched successfully",
+                  "data": [
+                    {
+                      "id": "uuid",
+                      "status": "pending",
+                      "startDate": "2024-02-01",
+                      "endDate": "2024-12-31",
+                      "createdAt": "2024-01-01T00:00:00.000Z",
+                      "tenant": {
+                        "id": "uuid",
+                        "name": "Tenant",
+                        "email": "tenant@test.com"
+                      },
+                      "landlord": {
+                        "id": "uuid",
+                        "name": "Landlord",
+                        "email": "landlord@test.com"
+                      },
+                      "property": {
+                        "id": "uuid",
+                        "title": "Modern Apartment",
+                        "price": 15000
+                      }
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 10
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "post": {
+        "summary": "POST Create Category (Admin)",
+        "description": "Create a new property category. Requires ADMIN role.",
+        "tags": [
+          "POST Create Category (Admin)"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Apartment"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Apartment listings for rent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Category created successfully",
+                  "data": {
+                    "id": "uuid",
+                    "name": "Apartment",
+                    "description": "Apartment listings for rent",
+                    "createdAt": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/admin/categories/{{categoryId}}": {
+      "delete": {
+        "summary": "DELETE Delete Category (Admin)",
+        "description": "Delete a property category. Requires ADMIN role.",
+        "tags": [
+          "DELETE Delete Category (Admin)"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": null,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Category deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          },
+          "errorDetails": {
+            "type": "object",
+            "nullable": true
+          },
+          "meta": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "page": {
+                "type": "integer"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
