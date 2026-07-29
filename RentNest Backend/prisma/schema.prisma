@@ -1,0 +1,165 @@
+// ===== _base.prisma =====
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  tenant
+  landlord
+  admin
+}
+
+enum RentalStatus {
+  pending
+  approved
+  rejected
+  active
+  completed
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+}
+
+enum PaymentProvider {
+  stripe
+  sslcommerz
+}
+
+
+// ===== user.prisma =====
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole
+  phone     String?
+  isBanned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties     Property[]
+  rentalRequests RentalRequest[]  @relation("TenantRequests")
+  landlordReqs   RentalRequest[]  @relation("LandlordRequests")
+  payments       Payment[]
+  reviews        Review[]
+}
+
+
+// ===== category.prisma =====
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  properties Property[]
+}
+
+
+// ===== property.prisma =====
+
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  address     String
+  city        String
+  state       String?
+  zipCode     String?
+  lat         Float?
+  lng         Float?
+  bedrooms    Int
+  bathrooms   Int
+  area        Float
+  amenities   String[]
+  images      String[]
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landlordId    String
+  landlord      User            @relation(fields: [landlordId], references: [id])
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id])
+  rentalRequests RentalRequest[]
+  reviews       Review[]
+
+  @@index([city, price])
+  @@index([categoryId])
+}
+
+
+// ===== rental-request.prisma =====
+
+model RentalRequest {
+  id        String       @id @default(uuid())
+  status    RentalStatus @default(pending)
+  message   String?
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  tenantId   String
+  tenant     User      @relation("TenantRequests", fields: [tenantId], references: [id])
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id])
+  landlordId String
+  landlord   User      @relation("LandlordRequests", fields: [landlordId], references: [id])
+
+  payments Payment[]
+  reviews  Review[]
+}
+
+
+// ===== payment.prisma =====
+
+model Payment {
+  id            String         @id @default(uuid())
+  amount        Float
+  method        String
+  provider      PaymentProvider
+  transactionId String         @unique
+  status        PaymentStatus  @default(pending)
+  paidAt        DateTime?
+  createdAt     DateTime       @default(now())
+
+  tenantId       String
+  tenant         User          @relation(fields: [tenantId], references: [id])
+  rentalRequestId String
+  rentalRequest  RentalRequest @relation(fields: [rentalRequestId], references: [id])
+}
+
+
+// ===== review.prisma =====
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  tenantId       String
+  tenant         User          @relation(fields: [tenantId], references: [id])
+  propertyId     String
+  property       Property      @relation(fields: [propertyId], references: [id])
+  rentalRequestId String
+  rentalRequest  RentalRequest @relation(fields: [rentalRequestId], references: [id])
+
+  @@unique([tenantId, propertyId])
+  @@index([propertyId])
+}

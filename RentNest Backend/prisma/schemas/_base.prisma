@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  tenant
+  landlord
+  admin
+}
+
+enum RentalStatus {
+  pending
+  approved
+  rejected
+  active
+  completed
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+}
+
+enum PaymentProvider {
+  stripe
+  sslcommerz
+}

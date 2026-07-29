@@ -1,0 +1,30 @@
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  address     String
+  city        String
+  state       String?
+  zipCode     String?
+  lat         Float?
+  lng         Float?
+  bedrooms    Int
+  bathrooms   Int
+  area        Float
+  amenities   String[]
+  images      String[]
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landlordId    String
+  landlord      User            @relation(fields: [landlordId], references: [id])
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id])
+  rentalRequests RentalRequest[]
+  reviews       Review[]
+
+  @@index([city, price])
+  @@index([categoryId])
+}
