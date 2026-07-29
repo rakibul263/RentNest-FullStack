@@ -1,0 +1,43 @@
+{
+  "name": "rentnest",
+  "version": "1.0.0",
+  "description": "RentNest - Rental Property Marketplace API",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "node prisma/combine.js && ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "node prisma/combine.js && npx prisma generate && tsc",
+    "start": "node dist/server.js",
+    "prisma:build": "node prisma/combine.js && npx prisma generate",
+    "seed": "ts-node src/scripts/seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@prisma/adapter-neon": "^7.8.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
+    "postman-to-openapi": "^1.7.3",
+    "stripe": "^22.3.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^26.1.0",
+    "prisma": "^7.8.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
+  }
+}
