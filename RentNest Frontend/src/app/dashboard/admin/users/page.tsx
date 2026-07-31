@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { adminNav } from "@/app/dashboard/admin/nav";
 import { adminApi } from "@/lib/api";
