@@ -72,6 +72,7 @@ export default function RegisterPage() {
         role: values.role,
         phone: values.phone || undefined,
       });
+      router.refresh();
       router.push(DASHBOARD[user.role] ?? "/");
     } catch (err) {
       setError((err as Error).message);

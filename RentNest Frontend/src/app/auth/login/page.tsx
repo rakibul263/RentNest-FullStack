@@ -45,8 +45,9 @@ export default function LoginPage() {
     try {
       const user = await login(values.email, values.password);
       const next = searchParams.get("next");
-      if (next && next.startsWith("/")) router.push(next);
-      else router.push(DASHBOARD[user.role] ?? "/");
+      const destination = (next && next.startsWith("/")) ? next : (DASHBOARD[user.role] ?? "/");
+      router.refresh();
+      router.push(destination);
     } catch (err) {
       setError((err as Error).message);
     } finally {
