@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import prisma from '../config/prisma';
+import prisma from '../src/config/prisma';
 import bcrypt from 'bcryptjs';
-import { UserRole, RentalStatus, PaymentStatus, PaymentProvider } from '../generated/prisma/enums';
+import { UserRole, RentalStatus, PaymentStatus, PaymentProvider } from '../src/generated/prisma/enums';
 
 async function seed() {
   console.log('🚀 Starting Database Seed (30+ Data Records)...');
@@ -96,8 +96,8 @@ async function seed() {
   }
   console.log(`✅ ${Object.keys(categories).length} Categories seeded.`);
 
-  // 4. Seed 32 Properties
-  console.log('🏡 Seeding 32 Properties...');
+  // 4. Seed 30 Properties
+  console.log('🏡 Seeding 30 Properties...');
   
   const propertySeeds = [
     {
@@ -755,46 +755,46 @@ async function seed() {
   }
   console.log(`✅ ${createdProperties.length} Properties seeded.`);
 
-  // 5. Create Rental Requests (Tanvir tenant requesting properties)
+  // 5. Create Rental Requests
   console.log('📋 Seeding Rental Requests...');
   const rentalReqsData = [
     {
-      propertyIndex: 0, // Gulshan Horizon Deluxe Suite (Toufik)
+      propertyIndex: 0,
       status: RentalStatus.completed,
       message: 'Looking forward to staying in Gulshan for 3 months.',
       startDate: new Date('2026-05-01'),
       endDate: new Date('2026-08-01'),
     },
     {
-      propertyIndex: 2, // Dhanmondi Lakeview Duplex (Toufik)
+      propertyIndex: 2,
       status: RentalStatus.active,
       message: 'Req for family residence during long-term project.',
       startDate: new Date('2026-07-01'),
       endDate: new Date('2027-01-01'),
     },
     {
-      propertyIndex: 19, // Cox’s Bazar Sunset Sea-View (Toufik)
+      propertyIndex: 19,
       status: RentalStatus.approved,
       message: 'Vacation stay for 2 weeks in Coxs Bazar.',
       startDate: new Date('2026-08-10'),
       endDate: new Date('2026-08-24'),
     },
     {
-      propertyIndex: 1, // Banani Skyline Apartment (Rakibul)
+      propertyIndex: 1,
       status: RentalStatus.pending,
       message: 'Interested in leasing this Banani flat starting next month.',
       startDate: new Date('2026-09-01'),
       endDate: new Date('2027-03-01'),
     },
     {
-      propertyIndex: 15, // Shahjalal Garden Residence (Rakibul)
+      propertyIndex: 15,
       status: RentalStatus.completed,
       message: 'Sylhet corporate stay request for 1 month.',
       startDate: new Date('2026-06-01'),
       endDate: new Date('2026-07-01'),
     },
     {
-      propertyIndex: 10, // Panchlaish Sanctuary Villa (Toufik)
+      propertyIndex: 10,
       status: RentalStatus.rejected,
       message: 'Requesting for short wedding event stay.',
       startDate: new Date('2026-04-01'),
