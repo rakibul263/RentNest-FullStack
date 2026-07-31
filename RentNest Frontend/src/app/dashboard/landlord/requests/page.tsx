@@ -33,10 +33,16 @@ export default function LandlordRequestsPage() {
       landlordApi.updateRequestStatus(id, status),
     onMutate: async ({ id, status }) => {
       await queryClient.cancelQueries({ queryKey: ["landlord-requests"] });
-      const prev = queryClient.getQueryData<RentalRequest[]>(["landlord-requests"]);
-      queryClient.setQueryData<RentalRequest[]>(["landlord-requests"], (old) =>
-        old?.map((r) => (r.id === id ? { ...r, status } : r)) ?? []
-      );
+      const prev = queryClient.getQueryData(["landlord-requests"]);
+      queryClient.setQueryData(["landlord-requests"], (old: unknown) => {
+        if (!old || typeof old !== "object") return old;
+        const response = old as { data?: RentalRequest[] };
+        if (!Array.isArray(response.data)) return old;
+        return {
+          ...response,
+          data: response.data.map((r) => (r.id === id ? { ...r, status } : r)),
+        };
+      });
       return { prev };
     },
     onError: (err: Error, _vars, ctx) => {
